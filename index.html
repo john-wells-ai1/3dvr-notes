@@ -56,7 +56,7 @@
 <body>
     <div class="container">
         <h2>3DVR Notes</h2>
-        <select id="folderSelect" onchange="changeFolder()">
+        <select id="folderSelect" onchange="loadNotes()">
             <option value="default">Default</option>
         </select>
         <button onclick="createFolder()">New Folder</button>
@@ -70,6 +70,7 @@
     </div>
 
     <script>
+        let editingIndex = null;
         document.addEventListener("DOMContentLoaded", function() {
             loadFolders();
             loadNotes();
@@ -84,7 +85,12 @@
                 return;
             }
             let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            notes.push({ title, content });
+            if (editingIndex !== null) {
+                notes[editingIndex] = { title, content };
+                editingIndex = null;
+            } else {
+                notes.push({ title, content });
+            }
             localStorage.setItem(folder, JSON.stringify(notes));
             clearFields();
             loadNotes();
@@ -119,7 +125,7 @@
             let notes = JSON.parse(localStorage.getItem(folder)) || [];
             document.getElementById("noteTitle").value = notes[index].title;
             document.getElementById("noteArea").value = notes[index].content;
-            deleteNote(index);
+            editingIndex = index;
         }
 
         function searchNotes() {
@@ -140,13 +146,16 @@
                 option.value = folderName;
                 option.textContent = folderName;
                 select.appendChild(option);
-                localStorage.setItem("folders", JSON.stringify([...JSON.parse(localStorage.getItem("folders")) || [], folderName]));
+                let folders = JSON.parse(localStorage.getItem("folders")) || [];
+                folders.push(folderName);
+                localStorage.setItem("folders", JSON.stringify(folders));
             }
         }
 
         function loadFolders() {
             const folders = JSON.parse(localStorage.getItem("folders")) || [];
             const select = document.getElementById("folderSelect");
+            select.innerHTML = '<option value="default">Default</option>';
             folders.forEach(folder => {
                 let option = document.createElement("option");
                 option.value = folder;
@@ -158,8 +167,10 @@
         function clearFields() {
             document.getElementById("noteTitle").value = "";
             document.getElementById("noteArea").value = "";
+            editingIndex = null;
         }
     </script>
 </body>
 </html>
+
 
