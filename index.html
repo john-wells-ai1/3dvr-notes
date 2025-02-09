@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3DVR Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>3DVR Notes</h2>
+        <textarea id="noteArea" placeholder="Start writing..."></textarea>
+        <button onclick="saveNote()">Save Note</button>
+        <button onclick="exportNotes()">Export Notes</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedNote = localStorage.getItem("note");
+            if (savedNote) {
+                document.getElementById("noteArea").value = savedNote;
+            }
+        });
+
+        function saveNote() {
+            const note = document.getElementById("noteArea").value;
+            localStorage.setItem("note", note);
+            alert("Note saved!");
+        }
+
+        function exportNotes() {
+            const note = document.getElementById("noteArea").value;
+            const blob = new Blob([note], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "note.txt";
+            a.click();
+        }
+    </script>
+</body>
+</html>
