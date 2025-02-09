@@ -19,13 +19,13 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        textarea {
+        textarea, input {
             width: 100%;
-            height: 300px;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
+            margin-bottom: 10px;
         }
         button {
             margin-top: 10px;
@@ -36,38 +36,120 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .note-list {
+            margin-top: 20px;
+        }
+        .note-item {
+            background: #eee;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>3DVR Notes</h2>
-        <textarea id="noteArea" placeholder="Start writing..."></textarea>
+        <input type="text" id="noteTitle" placeholder="Note title">
+        <textarea id="noteArea" placeholder="Write your note..."></textarea>
         <button onclick="saveNote()">Save Note</button>
         <button onclick="exportNotes()">Export Notes</button>
+        <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
+        <select id="folderSelect" onchange="changeFolder()">
+            <option value="default">Default</option>
+        </select>
+        <button onclick="createFolder()">New Folder</button>
+        <div class="note-list" id="noteList"></div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const savedNote = localStorage.getItem("note");
-            if (savedNote) {
-                document.getElementById("noteArea").value = savedNote;
-            }
+            loadFolders();
+            loadNotes();
         });
 
         function saveNote() {
-            const note = document.getElementById("noteArea").value;
-            localStorage.setItem("note", note);
-            alert("Note saved!");
+            const title = document.getElementById("noteTitle").value;
+            const content = document.getElementById("noteArea").value;
+            const folder = document.getElementById("folderSelect").value;
+            if (!title || !content) {
+                alert("Please provide both a title and content.");
+                return;
+            }
+
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            notes.push({ title, content });
+            localStorage.setItem(folder, JSON.stringify(notes));
+            loadNotes();
         }
 
-        function exportNotes() {
-            const note = document.getElementById("noteArea").value;
-            const blob = new Blob([note], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "note.txt";
-            a.click();
+        function loadNotes() {
+            const noteList = document.getElementById("noteList");
+            noteList.innerHTML = "";
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            notes.forEach((note, index) => {
+                const div = document.createElement("div");
+                div.classList.add("note-item");
+                div.innerHTML = `<strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
+                    <button onclick="editNote(${index})">Edit</button>
+                    <button onclick="deleteNote(${index})">Delete</button>`;
+                noteList.appendChild(div);
+            });
+        }
+
+        function deleteNote(index) {
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            notes.splice(index, 1);
+            localStorage.setItem(folder, JSON.stringify(notes));
+            loadNotes();
+        }
+
+        function editNote(index) {
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            document.getElementById("noteTitle").value = notes[index].title;
+            document.getElementById("noteArea").value = notes[index].content;
+            deleteNote(index);
+        }
+
+        function searchNotes() {
+            const query = document.getElementById("search").value.toLowerCase();
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(query) || note.content.toLowerCase().includes(query));
+            document.getElementById("noteList").innerHTML = filteredNotes.map((note, index) => `<div class='note-item'><strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
+                    <button onclick="editNote(${index})">Edit</button>
+                    <button onclick="deleteNote(${index})">Delete</button></div>`).join('');
+        }
+
+        function createFolder() {
+            const folderName = prompt("Enter folder name:");
+            if (folderName) {
+                const select = document.getElementById("folderSelect");
+                let option = document.createElement("option");
+                option.value = folderName;
+                option.textContent = folderName;
+                select.appendChild(option);
+                localStorage.setItem("folders", JSON.stringify([...JSON.parse(localStorage.getItem("folders")) || [], folderName]));
+            }
+        }
+
+        function loadFolders() {
+            const folders = JSON.parse(localStorage.getItem("folders")) || [];
+            const select = document.getElementById("folderSelect");
+            folders.forEach(folder => {
+                let option = document.createElement("option");
+                option.value = folder;
+                option.textContent = folder;
+                select.appendChild(option);
+            });
         }
     </script>
 </body>
 </html>
+
