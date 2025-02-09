@@ -130,25 +130,23 @@
 
         function searchNotes() {
             const query = document.getElementById("search").value.toLowerCase();
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(query) || note.content.toLowerCase().includes(query));
-            document.getElementById("noteList").innerHTML = filteredNotes.map((note, index) => `<div class='note-item'><strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
-                    <button onclick="editNote(${index})">Edit</button>
-                    <button onclick="deleteNote(${index})">Delete</button></div>`).join('');
+            loadNotes();
+            document.querySelectorAll(".note-item").forEach(item => {
+                if (!item.textContent.toLowerCase().includes(query)) {
+                    item.style.display = "none";
+                }
+            });
         }
 
         function createFolder() {
             const folderName = prompt("Enter folder name:");
             if (folderName) {
-                const select = document.getElementById("folderSelect");
-                let option = document.createElement("option");
-                option.value = folderName;
-                option.textContent = folderName;
-                select.appendChild(option);
                 let folders = JSON.parse(localStorage.getItem("folders")) || [];
-                folders.push(folderName);
-                localStorage.setItem("folders", JSON.stringify(folders));
+                if (!folders.includes(folderName)) {
+                    folders.push(folderName);
+                    localStorage.setItem("folders", JSON.stringify(folders));
+                    loadFolders();
+                }
             }
         }
 
