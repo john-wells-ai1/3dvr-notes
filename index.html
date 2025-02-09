@@ -19,7 +19,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        textarea, input {
+        textarea, input, select {
             width: 100%;
             padding: 10px;
             border-radius: 5px;
@@ -48,20 +48,24 @@
             justify-content: space-between;
             align-items: center;
         }
+        .note-item button {
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>3DVR Notes</h2>
-        <input type="text" id="noteTitle" placeholder="Note title">
-        <textarea id="noteArea" placeholder="Write your note..."></textarea>
-        <button onclick="saveNote()">Save Note</button>
-        <button onclick="exportNotes()">Export Notes</button>
-        <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
         <select id="folderSelect" onchange="changeFolder()">
             <option value="default">Default</option>
         </select>
         <button onclick="createFolder()">New Folder</button>
+        <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
+        <input type="text" id="noteTitle" placeholder="Note title">
+        <textarea id="noteArea" placeholder="Write your note..."></textarea>
+        <button onclick="saveNote()">Save Note</button>
+        <button onclick="clearFields()">Clear</button>
+        <button onclick="exportNotes()">Export Notes</button>
         <div class="note-list" id="noteList"></div>
     </div>
 
@@ -72,17 +76,17 @@
         });
 
         function saveNote() {
-            const title = document.getElementById("noteTitle").value;
-            const content = document.getElementById("noteArea").value;
+            const title = document.getElementById("noteTitle").value.trim();
+            const content = document.getElementById("noteArea").value.trim();
             const folder = document.getElementById("folderSelect").value;
             if (!title || !content) {
                 alert("Please provide both a title and content.");
                 return;
             }
-
             let notes = JSON.parse(localStorage.getItem(folder)) || [];
             notes.push({ title, content });
             localStorage.setItem(folder, JSON.stringify(notes));
+            clearFields();
             loadNotes();
         }
 
@@ -102,6 +106,7 @@
         }
 
         function deleteNote(index) {
+            if (!confirm("Are you sure you want to delete this note?")) return;
             const folder = document.getElementById("folderSelect").value;
             let notes = JSON.parse(localStorage.getItem(folder)) || [];
             notes.splice(index, 1);
@@ -148,6 +153,11 @@
                 option.textContent = folder;
                 select.appendChild(option);
             });
+        }
+
+        function clearFields() {
+            document.getElementById("noteTitle").value = "";
+            document.getElementById("noteArea").value = "";
         }
     </script>
 </body>
