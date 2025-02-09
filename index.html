@@ -75,6 +75,44 @@
             loadNotes();
         });
 
+        function createFolder() {
+            const folderName = prompt("Enter folder name:");
+            if (!folderName) return;
+            let folders = JSON.parse(localStorage.getItem("folders")) || [];
+            if (!folders.includes(folderName)) {
+                folders.push(folderName);
+                localStorage.setItem("folders", JSON.stringify(folders));
+                loadFolders();
+            }
+        }
+
+        function loadFolders() {
+            const folders = JSON.parse(localStorage.getItem("folders")) || [];
+            const select = document.getElementById("folderSelect");
+            select.innerHTML = '<option value="default">Default</option>';
+            folders.forEach(folder => {
+                let option = document.createElement("option");
+                option.value = folder;
+                option.textContent = folder;
+                select.appendChild(option);
+            });
+        }
+
+        function loadNotes() {
+            const folder = document.getElementById("folderSelect").value;
+            const noteList = document.getElementById("noteList");
+            noteList.innerHTML = "";
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            notes.forEach((note, index) => {
+                const div = document.createElement("div");
+                div.classList.add("note-item");
+                div.innerHTML = `<strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
+                    <button onclick="editNote(${index})">Edit</button>
+                    <button onclick="deleteNote(${index})">Delete</button>`;
+                noteList.appendChild(div);
+            });
+        }
+
         function exportNote() {
             const title = document.getElementById("noteTitle").value.trim();
             const content = document.getElementById("noteArea").value.trim();
@@ -102,21 +140,6 @@
             a.href = URL.createObjectURL(blob);
             a.download = `${folder}-notes.txt`;
             a.click();
-        }
-
-        function loadNotes() {
-            const noteList = document.getElementById("noteList");
-            noteList.innerHTML = "";
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            notes.forEach((note, index) => {
-                const div = document.createElement("div");
-                div.classList.add("note-item");
-                div.innerHTML = `<strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
-                    <button onclick="editNote(${index})">Edit</button>
-                    <button onclick="deleteNote(${index})">Delete</button>`;
-                noteList.appendChild(div);
-            });
         }
 
         function clearFields() {
