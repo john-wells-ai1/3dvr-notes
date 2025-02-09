@@ -63,37 +63,45 @@
         <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
         <input type="text" id="noteTitle" placeholder="Note title">
         <textarea id="noteArea" placeholder="Write your note..."></textarea>
-        <button onclick="saveNote()">Save Note</button>
+        <button onclick="exportNote()">Export Note</button>
         <button onclick="clearFields()">Clear</button>
-        <button onclick="exportNotes()">Export Notes</button>
+        <button onclick="exportAllNotes()">Export All Notes</button>
         <div class="note-list" id="noteList"></div>
     </div>
 
     <script>
-        let editingIndex = null;
         document.addEventListener("DOMContentLoaded", function() {
             loadFolders();
             loadNotes();
         });
 
-        function saveNote() {
+        function exportNote() {
             const title = document.getElementById("noteTitle").value.trim();
             const content = document.getElementById("noteArea").value.trim();
-            const folder = document.getElementById("folderSelect").value;
             if (!title || !content) {
-                alert("Please provide both a title and content.");
+                alert("Please provide both a title and content to export.");
                 return;
             }
+            const blob = new Blob([`Title: ${title}\n\n${content}`], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${title}.txt`;
+            a.click();
+        }
+
+        function exportAllNotes() {
+            const folder = document.getElementById("folderSelect").value;
             let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            if (editingIndex !== null) {
-                notes[editingIndex] = { title, content };
-                editingIndex = null;
-            } else {
-                notes.push({ title, content });
+            if (notes.length === 0) {
+                alert("No notes available to export.");
+                return;
             }
-            localStorage.setItem(folder, JSON.stringify(notes));
-            clearFields();
-            loadNotes();
+            const content = notes.map(note => `Title: ${note.title}\n\n${note.content}\n\n---------------------\n`).join("");
+            const blob = new Blob([content], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${folder}-notes.txt`;
+            a.click();
         }
 
         function loadNotes() {
@@ -111,64 +119,10 @@
             });
         }
 
-        function deleteNote(index) {
-            if (!confirm("Are you sure you want to delete this note?")) return;
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            notes.splice(index, 1);
-            localStorage.setItem(folder, JSON.stringify(notes));
-            loadNotes();
-        }
-
-        function editNote(index) {
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            document.getElementById("noteTitle").value = notes[index].title;
-            document.getElementById("noteArea").value = notes[index].content;
-            editingIndex = index;
-        }
-
-        function searchNotes() {
-            const query = document.getElementById("search").value.toLowerCase();
-            loadNotes();
-            document.querySelectorAll(".note-item").forEach(item => {
-                if (!item.textContent.toLowerCase().includes(query)) {
-                    item.style.display = "none";
-                }
-            });
-        }
-
-        function createFolder() {
-            const folderName = prompt("Enter folder name:");
-            if (folderName) {
-                let folders = JSON.parse(localStorage.getItem("folders")) || [];
-                if (!folders.includes(folderName)) {
-                    folders.push(folderName);
-                    localStorage.setItem("folders", JSON.stringify(folders));
-                    loadFolders();
-                }
-            }
-        }
-
-        function loadFolders() {
-            const folders = JSON.parse(localStorage.getItem("folders")) || [];
-            const select = document.getElementById("folderSelect");
-            select.innerHTML = '<option value="default">Default</option>';
-            folders.forEach(folder => {
-                let option = document.createElement("option");
-                option.value = folder;
-                option.textContent = folder;
-                select.appendChild(option);
-            });
-        }
-
         function clearFields() {
             document.getElementById("noteTitle").value = "";
             document.getElementById("noteArea").value = "";
-            editingIndex = null;
         }
     </script>
 </body>
 </html>
-
-
