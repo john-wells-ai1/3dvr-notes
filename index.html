@@ -3,84 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3DVR Notes</title>
+  <title>3DVR Gamified Notes</title>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    /* Global resets */
+    /* Global resets & CSS variables using the golden ratio for spacing */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --base-spacing: 1rem;
+      --golden-ratio: 1.618;
+      --primary-color: #007bff;
+      --secondary-color: #00c6ff;
+      --dark-bg: #343a40;
+      --light-bg: #e9ecef;
+      --card-bg: #f8f9fa;
+      --text-color: #343a40;
     }
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #e9ecef;
-      color: #343a40;
+      background: var(--light-bg);
+      color: var(--text-color);
+      line-height: 1.6;
+      /* Subtle sacred geometry background pattern (SVG pattern) */
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><defs><pattern id="geom" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><circle cx="60" cy="60" r="55" stroke="%23ffffff" stroke-width="1" fill="none"/><circle cx="60" cy="60" r="34" stroke="%23ffffff" stroke-width="1" fill="none"/><line x1="60" y1="5" x2="60" y2="115" stroke="%23ffffff" stroke-width="1"/><line x1="5" y1="60" x2="115" y2="60" stroke="%23ffffff" stroke-width="1"/></pattern></defs><rect width="120" height="120" fill="url(%23geom)"/></svg>');
+      background-size: 120px 120px;
       transition: background-color 0.3s, color 0.3s;
     }
-    /* Header styling */
+    /* Dark mode styles */
+    body.dark-mode {
+      background: var(--dark-bg);
+      color: #f8f9fa;
+    }
     header {
-      background: linear-gradient(135deg, #007bff, #00c6ff);
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: #fff;
-      padding: 20px;
       text-align: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: calc(var(--base-spacing) * 2);
+      position: relative;
+      overflow: hidden;
     }
     header h1 {
-      margin: 0;
-      font-size: 2rem;
+      font-size: calc(2rem * var(--golden-ratio));
+      margin-bottom: var(--base-spacing);
     }
     header p {
-      margin: 5px 0 0;
       font-size: 1rem;
       opacity: 0.9;
     }
-    /* Container */
+    /* Gamification status bar in the header */
+    .gamification {
+      margin-top: var(--base-spacing);
+      background: rgba(255, 255, 255, 0.2);
+      padding: var(--base-spacing);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      width: 70%;
+      height: 20px;
+      overflow: hidden;
+      margin-left: var(--base-spacing);
+    }
+    .progress {
+      height: 100%;
+      background: #ffc107;
+      width: 0%;
+      transition: width 0.5s ease-out;
+    }
+    /* Main container for the note editor */
     .container {
       max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
+      margin: calc(var(--base-spacing) * 3) auto;
       background: #fff;
+      padding: calc(var(--base-spacing) * 2);
       border-radius: 8px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
-    /* Form Elements */
+    body.dark-mode .container {
+      background: #495057;
+      color: #f8f9fa;
+    }
+    /* Form elements styling */
     input[type="text"],
     textarea,
     select {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: calc(var(--base-spacing) * 1);
+      margin-bottom: calc(var(--base-spacing) * 1);
       border: 1px solid #ced4da;
       border-radius: 4px;
-      font-size: 16px;
+      font-size: 1rem;
       transition: border-color 0.3s;
     }
     input[type="text"]:focus,
     textarea:focus,
     select:focus {
-      border-color: #80bdff;
+      border-color: var(--primary-color);
       outline: none;
     }
     textarea {
       resize: vertical;
       min-height: 120px;
     }
-    /* Button Group */
     .button-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: calc(var(--base-spacing) * 0.5);
+      margin-bottom: calc(var(--base-spacing) * 2);
     }
     button {
-      padding: 10px 20px;
+      flex: 1;
+      padding: calc(var(--base-spacing) * 1);
       border: none;
       border-radius: 4px;
-      background: #007bff;
+      background: var(--primary-color);
       color: #fff;
-      font-size: 16px;
+      font-size: 1rem;
       cursor: pointer;
       transition: background 0.3s, transform 0.1s;
     }
@@ -90,16 +139,13 @@
     button:active {
       transform: scale(0.98);
     }
-    /* Form Section Layout */
-    .form-section {
-      margin-bottom: 30px;
-    }
+    /* Layout for top controls */
     .form-top {
       display: flex;
-      gap: 10px;
-      align-items: center;
+      gap: calc(var(--base-spacing) * 1);
       flex-wrap: wrap;
-      margin-bottom: 15px;
+      margin-bottom: calc(var(--base-spacing) * 1);
+      align-items: center;
     }
     .form-top select {
       max-width: 180px;
@@ -108,109 +154,139 @@
       flex-grow: 1;
       min-width: 200px;
     }
-    /* Note Cards */
+    /* Note Cards with dimensions inspired by the golden ratio */
     .note-list {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      gap: calc(var(--base-spacing) * var(--golden-ratio));
+      margin-top: calc(var(--base-spacing) * 2);
+      padding: 0 calc(var(--base-spacing) * 1);
     }
     .note-card {
-      background: #f8f9fa;
-      padding: 15px;
+      background: var(--card-bg);
+      padding: calc(var(--base-spacing) * 1.5);
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: transform 0.2s;
+    }
+    .note-card:hover {
+      transform: scale(1.02);
     }
     .note-card h3 {
-      margin: 0 0 5px;
-      font-size: 20px;
+      margin: 0 0 calc(var(--base-spacing) * 0.5);
+      font-size: 1.5rem;
     }
     .note-card .note-date {
-      font-size: 12px;
+      font-size: 0.8rem;
       color: #6c757d;
-      margin-bottom: 10px;
+      margin-bottom: calc(var(--base-spacing) * 0.5);
     }
     .note-card p {
       flex-grow: 1;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 10px;
+      font-size: 1rem;
+      margin-bottom: calc(var(--base-spacing) * 0.5);
     }
     .note-card .actions {
       display: flex;
       justify-content: flex-end;
-      gap: 5px;
-    }
-    /* Dark Mode Styles */
-    body.dark-mode {
-      background: #343a40;
-      color: #f8f9fa;
-    }
-    body.dark-mode header {
-      background: linear-gradient(135deg, #00c6ff, #007bff);
-    }
-    body.dark-mode .container {
-      background: #495057;
-      color: #f8f9fa;
-    }
-    body.dark-mode input,
-    body.dark-mode textarea,
-    body.dark-mode select {
-      background: #6c757d;
-      color: #f8f9fa;
-      border: 1px solid #adb5bd;
-    }
-    body.dark-mode button {
-      background: #17a2b8;
-    }
-    body.dark-mode button:hover {
-      background: #138496;
-    }
-    body.dark-mode .note-card {
-      background: #6c757d;
-      color: #f8f9fa;
+      gap: calc(var(--base-spacing) * 0.5);
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>3DVR Notes</h1>
-    <p>Capture your ideas with style!</p>
+    <h1>3DVR Gamified Notes</h1>
+    <p>Where every note earns you experience!</p>
+    <div class="gamification">
+      <div class="gamification-info">
+        Level: <span id="userLevel">1</span> | XP: <span id="userXP">0</span>/<span id="xpThreshold">100</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress" id="xpProgress"></div>
+      </div>
+    </div>
   </header>
   <div class="container">
-    <div class="form-section">
-      <div class="form-top">
-        <select id="folderSelect" onchange="loadNotes()">
-          <option value="default">Default</option>
-        </select>
-        <button onclick="createFolder()">New Folder</button>
-        <input type="text" id="search" placeholder="Search notes..." onkeyup="loadNotes()" />
-        <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-      </div>
-      <input type="text" id="noteTitle" placeholder="Note title" />
-      <textarea id="noteArea" placeholder="Write your note..."></textarea>
-      <div class="button-group">
-        <button onclick="saveNote()">Save Note</button>
-        <button onclick="exportNote()">Export Note</button>
-        <button onclick="clearFields()">Clear</button>
-        <button onclick="exportAllNotes()">Export All Notes</button>
-        <button onclick="deleteAllNotes()">Delete All Notes</button>
-      </div>
+    <div class="form-top">
+      <select id="folderSelect" onchange="loadNotes()">
+        <option value="default">Default</option>
+      </select>
+      <button onclick="createFolder()">New Folder</button>
+      <input type="text" id="search" placeholder="Search notes..." onkeyup="loadNotes()" />
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
     </div>
-    <div class="note-list" id="noteList">
-      <!-- Note cards will appear here -->
+    <input type="text" id="noteTitle" placeholder="Note title" />
+    <textarea id="noteArea" placeholder="Write your note..."></textarea>
+    <div class="button-group">
+      <button onclick="saveNote()">Save Note</button>
+      <button onclick="exportNote()">Export Note</button>
+      <button onclick="clearFields()">Clear</button>
+      <button onclick="exportAllNotes()">Export All Notes</button>
+      <button onclick="deleteAllNotes()">Delete All Notes</button>
     </div>
   </div>
+  <div class="note-list" id="noteList">
+    <!-- Note cards will be inserted here -->
+  </div>
   <script>
+    /***** Gamification System *****/
+    // Structure to track experience (xp) and level.
+    let gamification = { xp: 0, level: 1 };
+
+    // Load gamification data from localStorage (if available)
+    function loadGamification() {
+      const data = localStorage.getItem("gamification");
+      if (data) {
+        gamification = JSON.parse(data);
+      } else {
+        saveGamification();
+      }
+      updateGamificationUI();
+    }
+
+    // Save gamification data to localStorage
+    function saveGamification() {
+      localStorage.setItem("gamification", JSON.stringify(gamification));
+    }
+
+    // Update the gamification UI elements: level, xp, progress bar
+    function updateGamificationUI() {
+      const xpThreshold = gamification.level * 100;
+      document.getElementById("userLevel").innerText = gamification.level;
+      document.getElementById("userXP").innerText = gamification.xp;
+      document.getElementById("xpThreshold").innerText = xpThreshold;
+      const progressPercent = Math.min((gamification.xp / xpThreshold) * 100, 100);
+      document.getElementById("xpProgress").style.width = progressPercent + "%";
+    }
+
+    // Update XP by a given number of points and check for level-ups.
+    function updateXP(points) {
+      gamification.xp += points;
+      const xpThreshold = gamification.level * 100;
+      // Allow for multiple level-ups if enough XP is earned
+      while (gamification.xp >= xpThreshold) {
+        gamification.xp -= xpThreshold;
+        gamification.level++;
+        alert("Congratulations! You've leveled up to Level " + gamification.level + "!");
+      }
+      saveGamification();
+      updateGamificationUI();
+    }
+
+    // Initialize gamification
+    loadGamification();
+
+    /***** Note App Functions *****/
     let editingNoteId = null;
-    
+
     document.addEventListener("DOMContentLoaded", function() {
       loadFolders();
       loadNotes();
     });
-    
+
     function createFolder() {
       const folderName = prompt("Enter folder name:");
       if (!folderName) return;
@@ -221,7 +297,7 @@
         loadFolders();
       }
     }
-    
+
     function loadFolders() {
       const folders = JSON.parse(localStorage.getItem("folders")) || [];
       const select = document.getElementById("folderSelect");
@@ -233,7 +309,7 @@
         select.appendChild(option);
       });
     }
-    
+
     function saveNote() {
       const title = document.getElementById("noteTitle").value.trim();
       const content = document.getElementById("noteArea").value.trim();
@@ -256,10 +332,14 @@
       }
       localStorage.setItem(folder, JSON.stringify(notes));
       alert("Note saved successfully!");
+      // Award XP: base points (10) + bonus points equal to the note's word count.
+      const wordCount = content.split(/\s+/).filter(Boolean).length;
+      const xpGained = 10 + wordCount;
+      updateXP(xpGained);
       clearFields();
       loadNotes();
     }
-    
+
     function loadNotes() {
       const query = document.getElementById("search").value.toLowerCase();
       const folder = document.getElementById("folderSelect").value;
@@ -287,7 +367,7 @@
         }
       });
     }
-    
+
     function editNote(noteId) {
       const folder = document.getElementById("folderSelect").value;
       let notes = JSON.parse(localStorage.getItem(folder)) || [];
@@ -298,7 +378,7 @@
         editingNoteId = noteId;
       }
     }
-    
+
     function deleteNote(noteId) {
       const folder = document.getElementById("folderSelect").value;
       let notes = JSON.parse(localStorage.getItem(folder)) || [];
@@ -309,7 +389,7 @@
         loadNotes();
       }
     }
-    
+
     function exportNote() {
       const title = document.getElementById("noteTitle").value.trim();
       const content = document.getElementById("noteArea").value.trim();
@@ -323,7 +403,7 @@
       a.download = `${title}.txt`;
       a.click();
     }
-    
+
     function exportAllNotes() {
       const folder = document.getElementById("folderSelect").value;
       let notes = JSON.parse(localStorage.getItem(folder)) || [];
@@ -338,13 +418,13 @@
       a.download = `${folder}-notes.txt`;
       a.click();
     }
-    
+
     function clearFields() {
       document.getElementById("noteTitle").value = "";
       document.getElementById("noteArea").value = "";
       editingNoteId = null;
     }
-    
+
     function deleteAllNotes() {
       const folder = document.getElementById("folderSelect").value;
       if (confirm("Are you sure you want to delete all notes in this folder?")) {
@@ -352,11 +432,10 @@
         loadNotes();
       }
     }
-    
+
     function toggleDarkMode() {
       document.body.classList.toggle("dark-mode");
     }
   </script>
 </body>
 </html>
-
