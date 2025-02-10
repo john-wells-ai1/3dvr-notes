@@ -1,193 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3DVR Notes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f4f4f4;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        textarea, input, select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .note-list {
-            margin-top: 20px;
-        }
-        .note-item {
-            background: #eee;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .note-item button {
-            margin-left: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3DVR Notes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .note-list {
+      margin-top: 20px;
+    }
+    .note-item {
+      background: #eee;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+    }
+    .note-item div.actions {
+      margin-top: 5px;
+    }
+    .note-item button {
+      margin-right: 5px;
+    }
+    /* Dark mode styles */
+    body.dark-mode {
+      background: #333;
+      color: #eee;
+    }
+    body.dark-mode .container {
+      background: #444;
+      color: #eee;
+    }
+    body.dark-mode textarea, 
+    body.dark-mode input, 
+    body.dark-mode select {
+      background: #666;
+      color: #eee;
+      border-color: #555;
+    }
+    body.dark-mode button {
+      background: #0080ff;
+    }
+    body.dark-mode .note-item {
+      background: #555;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>3DVR Notes</h2>
-        <select id="folderSelect" onchange="loadNotes()">
-            <option value="default">Default</option>
-        </select>
-        <button onclick="createFolder()">New Folder</button>
-        <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
-        <input type="text" id="noteTitle" placeholder="Note title">
-        <textarea id="noteArea" placeholder="Write your note..."></textarea>
-        <button onclick="saveNote()">Save Note</button>
-        <button onclick="exportNote()">Export Note</button>
-        <button onclick="clearFields()">Clear</button>
-        <button onclick="exportAllNotes()">Export All Notes</button>
-        <div class="note-list" id="noteList"></div>
-    </div>
+  <div class="container">
+    <h2>3DVR Notes</h2>
+    <select id="folderSelect" onchange="loadNotes()">
+      <option value="default">Default</option>
+    </select>
+    <button onclick="createFolder()">New Folder</button>
+    <input type="text" id="search" placeholder="Search notes..." onkeyup="loadNotes()">
+    <input type="text" id="noteTitle" placeholder="Note title">
+    <textarea id="noteArea" placeholder="Write your note..."></textarea>
+    <button onclick="saveNote()">Save Note</button>
+    <button onclick="exportNote()">Export Note</button>
+    <button onclick="clearFields()">Clear</button>
+    <button onclick="exportAllNotes()">Export All Notes</button>
+    <button onclick="deleteAllNotes()">Delete All Notes</button>
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <div class="note-list" id="noteList"></div>
+  </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            loadFolders();
-            loadNotes();
-        });
+  <script>
+    // Global variable to track which note is being edited (if any)
+    let editingNoteId = null;
 
-        function createFolder() {
-            const folderName = prompt("Enter folder name:");
-            if (!folderName) return;
-            let folders = JSON.parse(localStorage.getItem("folders")) || [];
-            if (!folders.includes(folderName)) {
-                folders.push(folderName);
-                localStorage.setItem("folders", JSON.stringify(folders));
-                loadFolders();
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+      loadFolders();
+      loadNotes();
+    });
+
+    // Create a new folder and save it in localStorage
+    function createFolder() {
+      const folderName = prompt("Enter folder name:");
+      if (!folderName) return;
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      if (!folders.includes(folderName)) {
+        folders.push(folderName);
+        localStorage.setItem("folders", JSON.stringify(folders));
+        loadFolders();
+      }
+    }
+
+    // Populate the folder dropdown
+    function loadFolders() {
+      const folders = JSON.parse(localStorage.getItem("folders")) || [];
+      const select = document.getElementById("folderSelect");
+      select.innerHTML = '<option value="default">Default</option>';
+      folders.forEach(folder => {
+        let option = document.createElement("option");
+        option.value = folder;
+        option.textContent = folder;
+        select.appendChild(option);
+      });
+    }
+
+    // Save a new note or update an existing one with a unique id and timestamp
+    function saveNote() {
+      const title = document.getElementById("noteTitle").value.trim();
+      const content = document.getElementById("noteArea").value.trim();
+      if (!title || !content) {
+        alert("Please provide both a title and content to save.");
+        return;
+      }
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      if (editingNoteId) {
+        // Update the note that is being edited
+        const noteIndex = notes.findIndex(note => note.id === editingNoteId);
+        if (noteIndex > -1) {
+          notes[noteIndex].title = title;
+          notes[noteIndex].content = content;
+          notes[noteIndex].date = new Date().toLocaleString();
         }
+        editingNoteId = null;
+      } else {
+        // Create a new note with a unique id and timestamp
+        notes.push({ id: Date.now(), title, content, date: new Date().toLocaleString() });
+      }
+      localStorage.setItem(folder, JSON.stringify(notes));
+      alert("Note saved successfully!");
+      clearFields();
+      loadNotes();
+    }
 
-        function loadFolders() {
-            const folders = JSON.parse(localStorage.getItem("folders")) || [];
-            const select = document.getElementById("folderSelect");
-            select.innerHTML = '<option value="default">Default</option>';
-            folders.forEach(folder => {
-                let option = document.createElement("option");
-                option.value = folder;
-                option.textContent = folder;
-                select.appendChild(option);
-            });
+    // Load and display notes, optionally filtering by the search query
+    function loadNotes() {
+      const query = document.getElementById("search").value.toLowerCase();
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      const noteList = document.getElementById("noteList");
+      noteList.innerHTML = "";
+      notes.forEach(note => {
+        if (
+          query === "" ||
+          note.title.toLowerCase().includes(query) ||
+          note.content.toLowerCase().includes(query)
+        ) {
+          const div = document.createElement("div");
+          div.classList.add("note-item");
+          div.innerHTML = `<strong>${note.title}</strong> <em>(${note.date})</em><br>${note.content.substring(0, 50)}...`;
+          
+          // Create a container for Edit and Delete buttons
+          const actionsDiv = document.createElement("div");
+          actionsDiv.classList.add("actions");
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.onclick = () => editNote(note.id);
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.onclick = () => deleteNote(note.id);
+          actionsDiv.appendChild(editBtn);
+          actionsDiv.appendChild(deleteBtn);
+          div.appendChild(actionsDiv);
+          
+          noteList.appendChild(div);
         }
+      });
+    }
 
-        function saveNote() {
-            const title = document.getElementById("noteTitle").value.trim();
-            const content = document.getElementById("noteArea").value.trim();
-            if (!title || !content) {
-                alert("Please provide both a title and content to save.");
-                return;
-            }
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            const noteIndex = notes.findIndex(note => note.title === title);
+    // Load a note into the editor for updating
+    function editNote(noteId) {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      let note = notes.find(note => note.id === noteId);
+      if (note) {
+        document.getElementById("noteTitle").value = note.title;
+        document.getElementById("noteArea").value = note.content;
+        editingNoteId = noteId;
+      }
+    }
 
-            if (noteIndex > -1) {
-                notes[noteIndex].content = content; // Update existing note
-            } else {
-                notes.push({ title, content }); // Save new note
-            }
+    // Delete a specific note
+    function deleteNote(noteId) {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      let note = notes.find(note => note.id === noteId);
+      if (note && confirm(`Are you sure you want to delete "${note.title}"?`)) {
+        notes = notes.filter(note => note.id !== noteId);
+        localStorage.setItem(folder, JSON.stringify(notes));
+        loadNotes();
+      }
+    }
 
-            localStorage.setItem(folder, JSON.stringify(notes));
-            alert("Note saved successfully!");
-            clearFields();
-            loadNotes();
-        }
+    // Export the currently edited note as a .txt file
+    function exportNote() {
+      const title = document.getElementById("noteTitle").value.trim();
+      const content = document.getElementById("noteArea").value.trim();
+      if (!title || !content) {
+        alert("Please provide both a title and content to export.");
+        return;
+      }
+      const blob = new Blob([`Title: ${title}\n\n${content}`], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${title}.txt`;
+      a.click();
+    }
 
-        function loadNotes() {
-            const folder = document.getElementById("folderSelect").value;
-            const noteList = document.getElementById("noteList");
-            noteList.innerHTML = "";
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            notes.forEach((note, index) => {
-                const div = document.createElement("div");
-                div.classList.add("note-item");
-                div.innerHTML = `<strong>${note.title}</strong><br>${note.content.substring(0, 50)}...
-                    <button onclick="editNote(${index})">Edit</button>
-                    <button onclick="deleteNote(${index})">Delete</button>`;
-                noteList.appendChild(div);
-            });
-        }
+    // Export all notes from the current folder as a single .txt file
+    function exportAllNotes() {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      if (notes.length === 0) {
+        alert("No notes available to export.");
+        return;
+      }
+      const content = notes.map(note => `Title: ${note.title}\nDate: ${note.date}\n\n${note.content}\n\n---------------------\n`).join("");
+      const blob = new Blob([content], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folder}-notes.txt`;
+      a.click();
+    }
 
-        function editNote(index) {
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            document.getElementById("noteTitle").value = notes[index].title;
-            document.getElementById("noteArea").value = notes[index].content;
-        }
+    // Clear the title and content input fields
+    function clearFields() {
+      document.getElementById("noteTitle").value = "";
+      document.getElementById("noteArea").value = "";
+      editingNoteId = null;
+    }
 
-        function deleteNote(index) {
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            if (confirm(`Are you sure you want to delete "${notes[index].title}"?`)) {
-                notes.splice(index, 1);
-                localStorage.setItem(folder, JSON.stringify(notes));
-                loadNotes();
-            }
-        }
+    // Delete all notes in the current folder
+    function deleteAllNotes() {
+      const folder = document.getElementById("folderSelect").value;
+      if (confirm("Are you sure you want to delete all notes in this folder?")) {
+        localStorage.removeItem(folder);
+        loadNotes();
+      }
+    }
 
-        function exportNote() {
-            const title = document.getElementById("noteTitle").value.trim();
-            const content = document.getElementById("noteArea").value.trim();
-            if (!title || !content) {
-                alert("Please provide both a title and content to export.");
-                return;
-            }
-            const blob = new Blob([`Title: ${title}\n\n${content}`], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `${title}.txt`;
-            a.click();
-        }
-
-        function exportAllNotes() {
-            const folder = document.getElementById("folderSelect").value;
-            let notes = JSON.parse(localStorage.getItem(folder)) || [];
-            if (notes.length === 0) {
-                alert("No notes available to export.");
-                return;
-            }
-            const content = notes.map(note => `Title: ${note.title}\n\n${note.content}\n\n---------------------\n`).join("");
-            const blob = new Blob([content], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `${folder}-notes.txt`;
-            a.click();
-        }
-
-        function clearFields() {
-            document.getElementById("noteTitle").value = "";
-            document.getElementById("noteArea").value = "";
-        }
-    </script>
+    // Toggle dark mode by adding/removing a class on the body element
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+  </script>
 </body>
 </html>
-
