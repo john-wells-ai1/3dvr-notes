@@ -63,6 +63,7 @@
         <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
         <input type="text" id="noteTitle" placeholder="Note title">
         <textarea id="noteArea" placeholder="Write your note..."></textarea>
+        <button onclick="saveNote()">Save Note</button>
         <button onclick="exportNote()">Export Note</button>
         <button onclick="clearFields()">Clear</button>
         <button onclick="exportAllNotes()">Export All Notes</button>
@@ -98,6 +99,29 @@
             });
         }
 
+        function saveNote() {
+            const title = document.getElementById("noteTitle").value.trim();
+            const content = document.getElementById("noteArea").value.trim();
+            if (!title || !content) {
+                alert("Please provide both a title and content to save.");
+                return;
+            }
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            const noteIndex = notes.findIndex(note => note.title === title);
+
+            if (noteIndex > -1) {
+                notes[noteIndex].content = content; // Update existing note
+            } else {
+                notes.push({ title, content }); // Save new note
+            }
+
+            localStorage.setItem(folder, JSON.stringify(notes));
+            alert("Note saved successfully!");
+            clearFields();
+            loadNotes();
+        }
+
         function loadNotes() {
             const folder = document.getElementById("folderSelect").value;
             const noteList = document.getElementById("noteList");
@@ -111,6 +135,23 @@
                     <button onclick="deleteNote(${index})">Delete</button>`;
                 noteList.appendChild(div);
             });
+        }
+
+        function editNote(index) {
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            document.getElementById("noteTitle").value = notes[index].title;
+            document.getElementById("noteArea").value = notes[index].content;
+        }
+
+        function deleteNote(index) {
+            const folder = document.getElementById("folderSelect").value;
+            let notes = JSON.parse(localStorage.getItem(folder)) || [];
+            if (confirm(`Are you sure you want to delete "${notes[index].title}"?`)) {
+                notes.splice(index, 1);
+                localStorage.setItem(folder, JSON.stringify(notes));
+                loadNotes();
+            }
         }
 
         function exportNote() {
@@ -149,3 +190,4 @@
     </script>
 </body>
 </html>
+
