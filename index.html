@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>3DVR Gamified Notes</title>
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    /* Global resets & CSS variables */
+    /* Global resets & CSS variables using the golden ratio for spacing */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -27,7 +28,12 @@
       background: var(--light-bg);
       color: var(--text-color);
       line-height: 1.6;
+      /* Subtle sacred geometry background pattern (SVG pattern) */
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><defs><pattern id="geom" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><circle cx="60" cy="60" r="55" stroke="%23ffffff" stroke-width="1" fill="none"/><circle cx="60" cy="60" r="34" stroke="%23ffffff" stroke-width="1" fill="none"/><line x1="60" y1="5" x2="60" y2="115" stroke="%23ffffff" stroke-width="1"/><line x1="5" y1="60" x2="115" y2="60" stroke="%23ffffff" stroke-width="1"/></pattern></defs><rect width="120" height="120" fill="url(%23geom)"/></svg>');
+      background-size: 120px 120px;
+      transition: background-color 0.3s, color 0.3s;
     }
+    /* Dark mode styles */
     body.dark-mode {
       background: var(--dark-bg);
       color: #f8f9fa;
@@ -37,7 +43,45 @@
       color: #fff;
       text-align: center;
       padding: calc(var(--base-spacing) * 2);
+      position: relative;
+      overflow: hidden;
     }
+    header h1 {
+      font-size: calc(2rem * var(--golden-ratio));
+      margin-bottom: var(--base-spacing);
+    }
+    header p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    /* Gamification status bar in the header */
+    .gamification {
+      margin-top: var(--base-spacing);
+      background: rgba(255, 255, 255, 0.2);
+      padding: var(--base-spacing);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      width: 70%;
+      height: 20px;
+      overflow: hidden;
+      margin-left: var(--base-spacing);
+    }
+    .progress {
+      height: 100%;
+      background: #ffc107;
+      width: 0%;
+      transition: width 0.5s ease-out;
+    }
+    /* Main container for the note editor */
     .container {
       max-width: 900px;
       margin: calc(var(--base-spacing) * 3) auto;
@@ -50,85 +94,348 @@
       background: #495057;
       color: #f8f9fa;
     }
+    /* Form elements styling */
     input[type="text"],
-    textarea {
+    textarea,
+    select {
       width: 100%;
-      padding: var(--base-spacing);
-      margin-bottom: var(--base-spacing);
+      padding: calc(var(--base-spacing) * 1);
+      margin-bottom: calc(var(--base-spacing) * 1);
       border: 1px solid #ced4da;
       border-radius: 4px;
       font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: calc(var(--base-spacing) * 0.5);
+      margin-bottom: calc(var(--base-spacing) * 2);
     }
     button {
-      padding: var(--base-spacing);
+      flex: 1;
+      padding: calc(var(--base-spacing) * 1);
       border: none;
       border-radius: 4px;
       background: var(--primary-color);
       color: #fff;
       font-size: 1rem;
       cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
     }
+    button:hover {
+      background: #0056b3;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    /* Layout for top controls */
+    .form-top {
+      display: flex;
+      gap: calc(var(--base-spacing) * 1);
+      flex-wrap: wrap;
+      margin-bottom: calc(var(--base-spacing) * 1);
+      align-items: center;
+    }
+    .form-top select {
+      max-width: 180px;
+    }
+    .form-top input#search {
+      flex-grow: 1;
+      min-width: 200px;
+    }
+    /* Note Cards with dimensions inspired by the golden ratio */
     .note-list {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--base-spacing);
-      margin-top: var(--base-spacing);
+      gap: calc(var(--base-spacing) * var(--golden-ratio));
+      margin-top: calc(var(--base-spacing) * 2);
+      padding: 0 calc(var(--base-spacing) * 1);
     }
     .note-card {
       background: var(--card-bg);
-      padding: var(--base-spacing);
+      padding: calc(var(--base-spacing) * 1.5);
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s;
+    }
+    .note-card:hover {
+      transform: scale(1.02);
+    }
+    .note-card h3 {
+      margin: 0 0 calc(var(--base-spacing) * 0.5);
+      font-size: 1.5rem;
+    }
+    .note-card .note-date {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: calc(var(--base-spacing) * 0.5);
+    }
+    .note-card p {
+      flex-grow: 1;
+      font-size: 1rem;
+      margin-bottom: calc(var(--base-spacing) * 0.5);
+    }
+    .note-card .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: calc(var(--base-spacing) * 0.5);
     }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-    
-    const firebaseConfig = {
-      apiKey: "AIzaSyD9KFIPzW1-LATINV-jZTUNmpNy1ErMsZ8",
-      authDomain: "dvr-notes.firebaseapp.com",
-      projectId: "dvr-notes",
-      storageBucket: "dvr-notes.firebasestorage.app",
-      messagingSenderId: "132848850776",
-      appId: "1:132848850776:web:2026e7a8362e07b005b72d",
-      measurementId: "G-3PYJFMYYQ8"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-    const db = getFirestore(app);
-    
-    document.getElementById("signInBtn").addEventListener("click", () => {
-      signInWithPopup(auth, provider).then((result) => {
-        document.getElementById("userName").innerText = `Welcome, ${result.user.displayName}`;
-      }).catch((error) => console.error(error));
-    });
-    
-    document.getElementById("signOutBtn").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        document.getElementById("userName").innerText = "";
-      }).catch((error) => console.error(error));
-    });
-  </script>
 </head>
 <body>
   <header>
     <h1>3DVR Gamified Notes</h1>
     <p>Where every note earns you experience!</p>
-    <div>
-      <button id="signInBtn">Sign In with Google</button>
-      <button id="signOutBtn">Sign Out</button>
-      <p id="userName"></p>
+    <div class="gamification">
+      <div class="gamification-info">
+        Level: <span id="userLevel">1</span> | XP: <span id="userXP">0</span>/<span id="xpThreshold">100</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress" id="xpProgress"></div>
+      </div>
     </div>
   </header>
   <div class="container">
+    <div class="form-top">
+      <select id="folderSelect" onchange="loadNotes()">
+        <option value="default">Default</option>
+      </select>
+      <button onclick="createFolder()">New Folder</button>
+      <input type="text" id="search" placeholder="Search notes..." onkeyup="loadNotes()" />
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
     <input type="text" id="noteTitle" placeholder="Note title" />
     <textarea id="noteArea" placeholder="Write your note..."></textarea>
-    <button onclick="saveNote()">Save Note</button>
-    <div id="noteList"></div>
+    <div class="button-group">
+      <button onclick="saveNote()">Save Note</button>
+      <button onclick="exportNote()">Export Note</button>
+      <button onclick="clearFields()">Clear</button>
+      <button onclick="exportAllNotes()">Export All Notes</button>
+      <button onclick="deleteAllNotes()">Delete All Notes</button>
+    </div>
   </div>
+  <div class="note-list" id="noteList">
+    <!-- Note cards will be inserted here -->
+  </div>
+  <script>
+    /***** Gamification System *****/
+    // Structure to track experience (xp) and level.
+    let gamification = { xp: 0, level: 1 };
+
+    // Load gamification data from localStorage (if available)
+    function loadGamification() {
+      const data = localStorage.getItem("gamification");
+      if (data) {
+        gamification = JSON.parse(data);
+      } else {
+        saveGamification();
+      }
+      updateGamificationUI();
+    }
+
+    // Save gamification data to localStorage
+    function saveGamification() {
+      localStorage.setItem("gamification", JSON.stringify(gamification));
+    }
+
+    // Update the gamification UI elements: level, xp, progress bar
+    function updateGamificationUI() {
+      const xpThreshold = gamification.level * 100;
+      document.getElementById("userLevel").innerText = gamification.level;
+      document.getElementById("userXP").innerText = gamification.xp;
+      document.getElementById("xpThreshold").innerText = xpThreshold;
+      const progressPercent = Math.min((gamification.xp / xpThreshold) * 100, 100);
+      document.getElementById("xpProgress").style.width = progressPercent + "%";
+    }
+
+    // Update XP by a given number of points and check for level-ups.
+    function updateXP(points) {
+      gamification.xp += points;
+      const xpThreshold = gamification.level * 100;
+      // Allow for multiple level-ups if enough XP is earned
+      while (gamification.xp >= xpThreshold) {
+        gamification.xp -= xpThreshold;
+        gamification.level++;
+        alert("Congratulations! You've leveled up to Level " + gamification.level + "!");
+      }
+      saveGamification();
+      updateGamificationUI();
+    }
+
+    // Initialize gamification
+    loadGamification();
+
+    /***** Note App Functions *****/
+    let editingNoteId = null;
+
+    document.addEventListener("DOMContentLoaded", function() {
+      loadFolders();
+      loadNotes();
+    });
+
+    function createFolder() {
+      const folderName = prompt("Enter folder name:");
+      if (!folderName) return;
+      let folders = JSON.parse(localStorage.getItem("folders")) || [];
+      if (!folders.includes(folderName)) {
+        folders.push(folderName);
+        localStorage.setItem("folders", JSON.stringify(folders));
+        loadFolders();
+      }
+    }
+
+    function loadFolders() {
+      const folders = JSON.parse(localStorage.getItem("folders")) || [];
+      const select = document.getElementById("folderSelect");
+      select.innerHTML = '<option value="default">Default</option>';
+      folders.forEach(folder => {
+        let option = document.createElement("option");
+        option.value = folder;
+        option.textContent = folder;
+        select.appendChild(option);
+      });
+    }
+
+    function saveNote() {
+      const title = document.getElementById("noteTitle").value.trim();
+      const content = document.getElementById("noteArea").value.trim();
+      if (!title || !content) {
+        alert("Please provide both a title and content to save.");
+        return;
+      }
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      if (editingNoteId) {
+        const noteIndex = notes.findIndex(note => note.id === editingNoteId);
+        if (noteIndex > -1) {
+          notes[noteIndex].title = title;
+          notes[noteIndex].content = content;
+          notes[noteIndex].date = new Date().toLocaleString();
+        }
+        editingNoteId = null;
+      } else {
+        notes.push({ id: Date.now(), title, content, date: new Date().toLocaleString() });
+      }
+      localStorage.setItem(folder, JSON.stringify(notes));
+      alert("Note saved successfully!");
+      // Award XP: base points (10) + bonus points equal to the note's word count.
+      const wordCount = content.split(/\s+/).filter(Boolean).length;
+      const xpGained = 10 + wordCount;
+      updateXP(xpGained);
+      clearFields();
+      loadNotes();
+    }
+
+    function loadNotes() {
+      const query = document.getElementById("search").value.toLowerCase();
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      const noteList = document.getElementById("noteList");
+      noteList.innerHTML = "";
+      notes.forEach(note => {
+        if (
+          query === "" ||
+          note.title.toLowerCase().includes(query) ||
+          note.content.toLowerCase().includes(query)
+        ) {
+          const card = document.createElement("div");
+          card.classList.add("note-card");
+          card.innerHTML = `
+            <h3>${note.title}</h3>
+            <div class="note-date">${note.date}</div>
+            <p>${note.content.substring(0, 100)}${note.content.length > 100 ? "..." : ""}</p>
+            <div class="actions">
+              <button onclick="editNote(${note.id})">Edit</button>
+              <button onclick="deleteNote(${note.id})">Delete</button>
+            </div>
+          `;
+          noteList.appendChild(card);
+        }
+      });
+    }
+
+    function editNote(noteId) {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      let note = notes.find(note => note.id === noteId);
+      if (note) {
+        document.getElementById("noteTitle").value = note.title;
+        document.getElementById("noteArea").value = note.content;
+        editingNoteId = noteId;
+      }
+    }
+
+    function deleteNote(noteId) {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      let note = notes.find(note => note.id === noteId);
+      if (note && confirm(`Are you sure you want to delete "${note.title}"?`)) {
+        notes = notes.filter(note => note.id !== noteId);
+        localStorage.setItem(folder, JSON.stringify(notes));
+        loadNotes();
+      }
+    }
+
+    function exportNote() {
+      const title = document.getElementById("noteTitle").value.trim();
+      const content = document.getElementById("noteArea").value.trim();
+      if (!title || !content) {
+        alert("Please provide both a title and content to export.");
+        return;
+      }
+      const blob = new Blob([`Title: ${title}\n\n${content}`], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${title}.txt`;
+      a.click();
+    }
+
+    function exportAllNotes() {
+      const folder = document.getElementById("folderSelect").value;
+      let notes = JSON.parse(localStorage.getItem(folder)) || [];
+      if (notes.length === 0) {
+        alert("No notes available to export.");
+        return;
+      }
+      const content = notes.map(note => `Title: ${note.title}\nDate: ${note.date}\n\n${note.content}\n\n---------------------\n`).join("");
+      const blob = new Blob([content], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folder}-notes.txt`;
+      a.click();
+    }
+
+    function clearFields() {
+      document.getElementById("noteTitle").value = "";
+      document.getElementById("noteArea").value = "";
+      editingNoteId = null;
+    }
+
+    function deleteAllNotes() {
+      const folder = document.getElementById("folderSelect").value;
+      if (confirm("Are you sure you want to delete all notes in this folder?")) {
+        localStorage.removeItem(folder);
+        loadNotes();
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+  </script>
 </body>
 </html>
