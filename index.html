@@ -48,6 +48,9 @@
     <div class="gamification">
       Level: <span id="userLevel">1</span> | XP: <span id="userXP">0</span>/<span id="xpThreshold">100</span>
     </div>
+    <button id="signInBtn">Sign In with Google</button>
+    <button id="signOutBtn" style="display: none;">Sign Out</button>
+    <p id="userInfo"></p>
   </header>
 
   <div class="container">
@@ -71,6 +74,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD9KFIPzW1-LATINV-jZTUNmpNy1ErMsZ8",
@@ -83,76 +87,91 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth();
 
-    let gamification = { xp: 0, level: 1 };
+    document.getElementById("signInBtn").addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error("Login Failed:", error);
+      }
+    });
+
+    document.getElementById("signOutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("userInfo").innerText = `Signed in as: ${user.displayName}`;
+        document.getElementById("signInBtn").style.display = "none";
+        document.getElementById("signOutBtn").style.display = "block";
+        loadNotes();
+      } else {
+        document.getElementById("userInfo").innerText = "Not signed in";
+        document.getElementById("signInBtn").style.display = "block";
+        document.getElementById("signOutBtn").style.display = "none";
+        document.getElementById("noteList").innerHTML = "";
+      }
+    });
 
     async function saveNote() {
       const title = document.getElementById("noteTitle").value.trim();
       const content = document.getElementById("noteArea").value.trim();
-      const folder = document.getElementById("folderSelect").value || "default";
+      const user = auth.currentUser;
+
+      if (!user) {
+        alert("You need to sign in first!");
+        return;
+      }
 
       if (!title || !content) {
-        alert("Please provide both a title and content to save.");
+        alert("Please provide both a title and content.");
         return;
       }
 
       await addDoc(collection(db, "notes"), {
-        title, content, folder, date: new Date().toISOString()
+        userId: user.uid,
+        title,
+        content,
+        date: new Date().toISOString()
       });
 
       alert("Note saved successfully!");
-      updateXP(10 + content.split(/\s+/).length);
       loadNotes();
     }
 
     async function loadNotes() {
+      const user = auth.currentUser;
+      if (!user) return;
+
       const noteList = document.getElementById("noteList");
       noteList.innerHTML = "";
-      const folder = document.getElementById("folderSelect").value || "default";
-      const searchQuery = document.getElementById("search").value.toLowerCase();
 
-      const q = query(collection(db, "notes"), where("folder", "==", folder));
+      const q = query(collection(db, "notes"), where("userId", "==", user.uid));
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((docSnap) => {
         const note = docSnap.data();
-        if (!searchQuery || note.title.toLowerCase().includes(searchQuery) || note.content.toLowerCase().includes(searchQuery)) {
-          const card = document.createElement("div");
-          card.classList.add("note-card");
-          card.innerHTML = `
-            <h3>${note.title}</h3>
-            <p>${note.content.substring(0, 100)}${note.content.length > 100 ? "..." : ""}</p>
-            <small>${new Date(note.date).toLocaleString()}</small>
-            <button onclick="deleteNote('${docSnap.id}')">Delete</button>
-          `;
-          noteList.appendChild(card);
-        }
+        const card = document.createElement("div");
+        card.classList.add("note-card");
+        card.innerHTML = `
+          <h3>${note.title}</h3>
+          <p>${note.content.substring(0, 100)}${note.content.length > 100 ? "..." : ""}</p>
+          <small>${new Date(note.date).toLocaleString()}</small>
+          <button onclick="deleteNote('${docSnap.id}')">Delete</button>
+        `;
+        noteList.appendChild(card);
       });
     }
 
     async function deleteNote(id) {
-      if (confirm("Are you sure you want to delete this note?")) {
-        await deleteDoc(doc(db, "notes", id));
-        loadNotes();
-      }
-    }
-
-    function updateXP(points) {
-      gamification.xp += points;
-      const xpThreshold = gamification.level * 100;
-      while (gamification.xp >= xpThreshold) {
-        gamification.xp -= xpThreshold;
-        gamification.level++;
-        alert(`🎉 Level Up! You are now Level ${gamification.level}`);
-      }
-      document.getElementById("userLevel").innerText = gamification.level;
-      document.getElementById("userXP").innerText = gamification.xp;
-      document.getElementById("xpThreshold").innerText = xpThreshold;
+      await deleteDoc(doc(db, "notes", id));
+      loadNotes();
     }
 
     function toggleDarkMode() { document.body.classList.toggle("dark-mode"); }
-
-    document.addEventListener("DOMContentLoaded", loadNotes);
   </script>
 
 </body>
