@@ -16,9 +16,39 @@
    measurementId: "G-3PYJFMYYQ8"
  };
  
- // Initialize Firebase
- const app = initializeApp(firebaseConfig);
- const analytics = getAnalytics(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+// test Firebase db interface
+const notesCollection = collection(db, "notes");
+
+async function createNote(name, folder, body) {
+ try {
+  const docRef = await addDoc(notesCollection, 
+                                {name: name,
+                                 folder:folder,
+                                 body: body
+                                });
+    console.log("Created new doc with ID: " + docRef.getId); 
+ } catch (e) {
+  console.error("error adding doc: ") + e.toString(); 
+ }
+}
+
+createNote("Test Name", "Test Folder", "Test Note");
+
+async function getAllNotes() {
+  const querySnapshot = await getDocs( notesCollection);
+  querySnapshot.forEach((doc) => {
+    console.log(`${doc.id} => ${doc.data()}`);
+  });
+}
+
+ 
+}
+
 /***** Gamification System *****/
 // Structure to track experience (xp) and level.
 let gamification = { xp: 0, level: 1 };
