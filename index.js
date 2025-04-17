@@ -3,7 +3,8 @@
  import { getAnalytic } from "firebase/analytics";
  // TODO: Add SDKs for Firebase products that you want to use
  // https://firebase.google.com/docs/web/setup#available-libraries
- 
+ console.log("calling firebaseConfig");
+
  // Your web app's Firebase configuration
  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
  const firebaseConfig = {
@@ -15,14 +16,18 @@
    appId: "1:132848850776:web:2026e7a8362e07b005b72d",
    measurementId: "G-3PYJFMYYQ8"
  };
- 
+ console.log("calling initializeApp");
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 // test Firebase db interface
+console.log("calling notesCollection");
+
 const notesCollection = collection(db, "notes");
+console.log("define createNote");
 
 async function createNote(name, folder, body) {
  try {
@@ -40,6 +45,8 @@ async function createNote(name, folder, body) {
 console.log("calling createNote");
 createNote("Test Name", "Test Folder", "Test Note");
 
+console.log("define getAllNotes");
+
 async function getAllNotes() {
   const querySnapshot = await getDocs( notesCollection);
   querySnapshot.forEach((doc) => {
@@ -47,7 +54,7 @@ async function getAllNotes() {
   });
 }
 
-console.log("calling createNote");
+console.log("calling getAllNotes");
 getAllNotes();
 
 /***** Gamification System *****/
