@@ -37,6 +37,7 @@ async function createNote(name, folder, body) {
  }
 }
 
+console.log("calling createNote");
 createNote("Test Name", "Test Folder", "Test Note");
 
 async function getAllNotes() {
@@ -46,8 +47,8 @@ async function getAllNotes() {
   });
 }
 
- 
-}
+console.log("calling createNote");
+getAllNotes();
 
 /***** Gamification System *****/
 // Structure to track experience (xp) and level.
