@@ -232,6 +232,27 @@
     <!-- Note cards will be inserted here -->
   </div>
   <script>
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "firebase/app";
+    import { getAnalytics } from "firebase/analytics";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9KFIPzW1-LATINV-jZTUNmpNy1ErMsZ8",
+      authDomain: "dvr-notes.firebaseapp.com",
+      projectId: "dvr-notes",
+      storageBucket: "dvr-notes.firebasestorage.app",
+      messagingSenderId: "132848850776",
+      appId: "1:132848850776:web:2026e7a8362e07b005b72d",
+      measurementId: "G-3PYJFMYYQ8"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     /***** Gamification System *****/
     // Structure to track experience (xp) and level.
     let gamification = { xp: 0, level: 1 };
