@@ -1,27 +1,25 @@
 // Import the functions you need from the SDKs you need
- import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
- import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
- import { admin } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-admin.js";
-
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
- // https://firebase.google.com/docs/web/setup#available-libraries
+// https://firebase.google.com/docs/web/setup#available-libraries
 
- // Your web app's Firebase configuration
- // For Firebase JS SDK v7.20.0 and later, measurementId is optional
- const firebaseConfig = {
-   apiKey: "AIzaSyAAN4bVdtl5kPo4fPiWSdbFEguV2R0Db0Y",
-   authDomain: "dvr-notes-mw.firebaseapp.com",
-   projectId: "dvr-notes-mw",
-   storageBucket: "dvr-notes-mw.firebasestorage.app",
-   messagingSenderId: "864444745369",
-   appId: "1:864444745369:web:8df929d6a28db5fd51da08",
-   measurementId: "G-93WK606PLH"
- };
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAAN4bVdtl5kPo4fPiWSdbFEguV2R0Db0Y",
+  authDomain: "dvr-notes-mw.firebaseapp.com",
+  projectId: "dvr-notes-mw",
+  storageBucket: "dvr-notes-mw.firebasestorage.app",
+  messagingSenderId: "864444745369",
+  appId: "1:864444745369:web:8df929d6a28db5fd51da08",
+  measurementId: "G-93WK606PLH"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = admin.firestore();
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 // test Firebase db interface
 console.log("calling notesCollection");
