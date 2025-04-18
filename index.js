@@ -1,25 +1,20 @@
 // Import the functions you need from the SDKs you need
- import { initializeApp } from "firebase/app";
- import { getAnalytic } from "firebase/analytics";
-
- //const { initializeApp } = require("firebase/app");
- //const { getAnalytic } = require("firebase/analytics");
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+ import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
  // TODO: Add SDKs for Firebase products that you want to use
  // https://firebase.google.com/docs/web/setup#available-libraries
- console.log("calling firebaseConfig");
 
  // Your web app's Firebase configuration
  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
  const firebaseConfig = {
-   apiKey: "AIzaSyD9KFIPzW1-LATINV-jZTUNmpNy1ErMsZ8",
-   authDomain: "dvr-notes.firebaseapp.com",
-   projectId: "dvr-notes",
-   storageBucket: "dvr-notes.firebasestorage.app",
-   messagingSenderId: "132848850776",
-   appId: "1:132848850776:web:2026e7a8362e07b005b72d",
-   measurementId: "G-3PYJFMYYQ8"
+   apiKey: "AIzaSyAAN4bVdtl5kPo4fPiWSdbFEguV2R0Db0Y",
+   authDomain: "dvr-notes-mw.firebaseapp.com",
+   projectId: "dvr-notes-mw",
+   storageBucket: "dvr-notes-mw.firebasestorage.app",
+   messagingSenderId: "864444745369",
+   appId: "1:864444745369:web:8df929d6a28db5fd51da08",
+   measurementId: "G-93WK606PLH"
  };
- console.log("calling initializeApp");
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
