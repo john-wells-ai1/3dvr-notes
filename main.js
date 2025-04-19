@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -260,6 +259,3 @@ function deleteAllNotes() {
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
 }
-=======
->>>>>>> b5c74dad83ffb691cf661a401ef1013ca49270fa
-
