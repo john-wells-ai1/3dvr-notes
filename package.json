@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/john-wells-ai1/3dvr-notes#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "firebase": "^11.6.0"
   }
 }
