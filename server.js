@@ -15,7 +15,7 @@ app.use(express.static('.'));
 
 // Route to serve the HTML file
 app.get('/', (req, res) => {
-  res.sendFile(path.join('main.html'));
+  res.sendFile(path.join('index.html'));
 });
 
 app.listen(port, () => {
