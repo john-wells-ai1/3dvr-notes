@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "3dvr-notes",
   "version": "1.0.0",
   "description": "3DVR-Notes development fork",
