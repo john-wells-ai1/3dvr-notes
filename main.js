@@ -41,7 +41,7 @@ async function createNote(name, folder, body) {
  try {
   const docRef = await addDoc(notesCollection, 
                                 {name: name,
-                                 folder:folder,
+                                 folder: folder,
                                  body: body
                                 });
     console.log("Created new doc with ID: " + docRef.getId); 
