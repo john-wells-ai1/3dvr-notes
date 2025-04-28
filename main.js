@@ -69,7 +69,7 @@ loadNotesCollection();
 async function getAllNotes() {
   const querySnapshot = await getDocs(notesCollection);
   const tempDoc = []  
-  tempDoc = querySnapshot.forEach((doc) => {
+  querySnapshot.forEach((doc) => {
     tempDoc.push({ id: doc.id, ...doc.data() })
   });
   console.log(tempDoc);
