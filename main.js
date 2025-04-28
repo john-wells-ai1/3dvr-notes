@@ -52,7 +52,7 @@ async function createNote(name, folder, body) {
 
 console.log("calling createNote");
 createNote("Test Name", "Test Folder", "Test Note");
-
+/*
 async function loadNotesCollection() {
   const notesCol = collection(db, "notes");
   const notesSnapshot = await getDocs(notesCol);
@@ -64,13 +64,10 @@ async function loadNotesCollection() {
     notesList.appendChild(li);
   });
 }
-console.log("calling loadNotes");
 loadNotesCollection();
-
-
-/*
+*/
 async function getAllNotes() {
-  const querySnapshot = await getDocs( notesCollection);
+  const querySnapshot = await getDocs(notesCollection);
   querySnapshot.forEach((doc) => {
     console.log(`${doc.id} => ${doc.data()}`);
   });
@@ -78,7 +75,7 @@ async function getAllNotes() {
 
 console.log("calling getAllNotes");
 getAllNotes();
-*/
+
 
 /***** Gamification System *****/
 // Structure to track experience (xp) and level.
