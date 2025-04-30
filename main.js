@@ -1,16 +1,8 @@
 // Import the functions you need from the SDKs you need
-//import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
-//import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import env from "./env.js";
-//import admin from 'firebase-admin';
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -31,9 +23,6 @@ const app = initializeApp(firebaseConfig);
 
 // Export Firestore DB
 export const db = getFirestore(app);
-
-//admin.initializeApp();
-//const db = admin.firestore();
 
 // test Firebase db interface
 const notesCollection = collection(db, "notes");
