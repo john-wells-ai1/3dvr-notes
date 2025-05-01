@@ -116,7 +116,10 @@ function loadFolders() {
   });
 }
 
-async function saveNote() {
+var saveNote = document.getElementById('save-note');
+
+saveNote.addEventListener('click', async function saveNote() {
+  console.log('Save Note element was clicked, woot woot!);
   const title = document.getElementById("noteTitle").value.trim();
   const content = document.getElementById("noteArea").value.trim();
   if (!title || !content) {
@@ -159,7 +162,7 @@ async function saveNote() {
   updateXP(xpGained);
   clearFields();
   loadNotes();
-}
+});
 
 function loadNotes() {
   const query = document.getElementById("search").value.toLowerCase();
