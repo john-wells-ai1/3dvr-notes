@@ -25,11 +25,18 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
 // test Firebase db interface
+var title = "Test Title"
+var folder = "Test Folder"
+var body = "Test Note"
 const notesCollection = collection(db, "notes");
-async function createNote(name, folder, body) {
+async function saveNote(title, folder, body) {
+
+  title = "Test Title"
+  folder = "Test Folder"
+  body = "Test Note"
  try {
   const docRef = await addDoc(notesCollection, 
-                                {name: name,
+                                {name: title,
                                  folder: folder,
                                  body: body
                                 });
@@ -40,7 +47,7 @@ async function createNote(name, folder, body) {
 }
 
 console.log("calling createNote");
-createNote("Test Name", "Test Folder", "Test Note");
+//createNote("Test Title", "Test Folder", "Test Note");
 /*
 async function loadNotesCollection() {
   const notesCol = collection(db, "notes");
