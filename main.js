@@ -25,9 +25,9 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
 // test Firebase db interface
-var title = "Test Title"
-var folder = "Test Folder"
-var body = "Test Note"
+//var title = "Test Title"
+//var folder = "Test Folder"
+//var body = "Test Note"
 const notesCollection = collection(db, "notes");
 async function saveNote(title, folder, body) {
 
