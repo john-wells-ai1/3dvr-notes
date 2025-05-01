@@ -16,52 +16,19 @@ const firebaseConfig = {
   //measurementId: env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+var firebaseConnected = true;
 
-//const analytics = getAnalytics(app);
+if (firebaseConnected) {
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  //const analytics = getAnalytics(app);
 
-// Export Firestore DB
-export const db = getFirestore(app);
-
-// test Firebase db interface
-//var title = "Test Title"
-//var folder = "Test Folder"
-//var body = "Test Note"
-const notesCollection = collection(db, "notes");
-async function saveNote(title, folder, body) {
-
-  title = "Test Title"
-  folder = "Test Folder"
-  body = "Test Note"
- try {
-  const docRef = await addDoc(notesCollection, 
-                                {name: title,
-                                 folder: folder,
-                                 body: body
-                                });
-    console.log("Created new doc with ID: " + docRef.getId); 
- } catch (e) {
-  console.error("error adding doc: ") + e.toString(); 
- }
+  // Export Firestore DB
+  export const db = getFirestore(app);
+  const notesCollection = collection(db, "notes");
 }
 
-console.log("calling createNote");
-//createNote("Test Title", "Test Folder", "Test Note");
 /*
-async function loadNotesCollection() {
-  const notesCol = collection(db, "notes");
-  const notesSnapshot = await getDocs(notesCol);
-
-  const notesList = document.getElementById('notes-list');
-  notesSnapshot.forEach(doc => {
-    const li = document.createElement('li');
-    li.textContent = doc.data().title;
-    notesList.appendChild(li);
-  });
-}
-loadNotesCollection();
-*/
 async function getAllNotes() {
   const querySnapshot = await getDocs(notesCollection);
   const tempDoc = []  
@@ -73,7 +40,7 @@ async function getAllNotes() {
 
 console.log("calling getAllNotes");
 getAllNotes();
-
+*/
 
 /***** Gamification System *****/
 // Structure to track experience (xp) and level.
@@ -161,19 +128,34 @@ function saveNote() {
     return;
   }
   const folder = document.getElementById("folderSelect").value;
-  let notes = JSON.parse(localStorage.getItem(folder)) || [];
-  if (editingNoteId) {
-    const noteIndex = notes.findIndex(note => note.id === editingNoteId);
-    if (noteIndex > -1) {
-      notes[noteIndex].title = title;
-      notes[noteIndex].content = content;
-      notes[noteIndex].date = new Date().toLocaleString();
+
+  if (firebaseConnected) {
+    try {
+      const docRef = await addDoc(notesCollection, 
+                                {name: title,
+                                 folder: folder,
+                                 body: body
+                                });
+        console.log("Created new doc with ID: " + docRef.getId); 
+      } catch (e) {
+      console.error("error adding doc: ") + e.toString(); 
     }
-    editingNoteId = null;
-  } else {
-    notes.push({ id: Date.now(), title, content, date: new Date().toLocaleString() });
+  }  else {
+    let notes = JSON.parse(localStorage.getItem(folder)) || [];
+    if (editingNoteId) {
+      const noteIndex = notes.findIndex(note => note.id === editingNoteId);
+      if (noteIndex > -1) {
+        notes[noteIndex].title = title;
+        notes[noteIndex].content = content;
+        notes[noteIndex].date = new Date().toLocaleString();
+      }
+      editingNoteId = null;
+    } else {
+      notes.push({ id: Date.now(), title, content, date: new Date().toLocaleString() });
+    }
+    localStorage.setItem(folder, JSON.stringify(notes));
   }
-  localStorage.setItem(folder, JSON.stringify(notes));
+
   alert("Note saved successfully!");
   // Award XP: base points (10) + bonus points equal to the note's word count.
   const wordCount = content.split(/\s+/).filter(Boolean).length;
