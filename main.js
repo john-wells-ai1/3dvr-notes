@@ -116,7 +116,7 @@ function loadFolders() {
   });
 }
 
-var saveNote = document.getElementById('save-note');
+var saveNote = document.getElementById("save-note");
 
 saveNote.addEventListener('click', async function saveNote() {
   console.log('Save Note element was clicked, woot woot!');
