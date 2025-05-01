@@ -17,15 +17,12 @@ const firebaseConfig = {
 };
 
 var firebaseConnected = true;
-if (firebaseConnected) {
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  //const analytics = getAnalytics(app);
-
-  // Export Firestore DB
-  const notesCollection = collection(db, "notes");
-}
+// Initialize Firebase
+const app = firebaseConnected ? initializeApp(firebaseConfig) : null;
+//const analytics = getAnalytics(app);
 export const db = firebaseConnected ? getFirestore(app) : null;
+// Export Firestore DB
+const notesCollection = firebaseConnected ? collection(db, "notes") : null;  //TODO init local storage structure here
 
 /*
 async function getAllNotes() {
