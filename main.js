@@ -124,7 +124,7 @@ document.getElementById("save-note").addEventListener('click', async function sa
     alert("Please provide both a title and content to save.");
     return;
   }
-  const folder = document.getElementById("folderSelect").value;
+  const folder = document.getElementById("folderSelect")?.value || "NONE";
 
   if (firebaseConnected) {
     try {
