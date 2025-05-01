@@ -114,6 +114,7 @@ function loadFolders() {
     option.textContent = folder;
     select.appendChild(option);
   });
+}
 
 document.getElementById("save-note").addEventListener('click', async function saveNote() {
   console.log('Save Note element was clicked, woot woot!');
