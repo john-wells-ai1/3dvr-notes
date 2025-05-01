@@ -119,7 +119,7 @@ function loadFolders() {
 var saveNote = document.getElementById('save-note');
 
 saveNote.addEventListener('click', async function saveNote() {
-  console.log('Save Note element was clicked, woot woot!);
+  console.log('Save Note element was clicked, woot woot!');
   const title = document.getElementById("noteTitle").value.trim();
   const content = document.getElementById("noteArea").value.trim();
   if (!title || !content) {
