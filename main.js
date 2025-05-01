@@ -120,7 +120,7 @@ function loadFolders() {
   });
 }
 
-function saveNote() {
+async function saveNote() {
   const title = document.getElementById("noteTitle").value.trim();
   const content = document.getElementById("noteArea").value.trim();
   if (!title || !content) {
