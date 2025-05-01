@@ -17,8 +17,6 @@ const firebaseConfig = {
 };
 
 var firebaseConnected = true;
-export const db = firebaseConnected ? getFirestore(app) : null;
-
 if (firebaseConnected) {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
@@ -27,6 +25,7 @@ if (firebaseConnected) {
   // Export Firestore DB
   const notesCollection = collection(db, "notes");
 }
+export const db = firebaseConnected ? getFirestore(app) : null;
 
 /*
 async function getAllNotes() {
