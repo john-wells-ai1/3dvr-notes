@@ -114,11 +114,8 @@ function loadFolders() {
     option.textContent = folder;
     select.appendChild(option);
   });
-}
 
-var saveNote = document.getElementById("save-note");
-
-saveNote.addEventListener('click', async function saveNote() {
+document.getElementById("save-note").addEventListener('click', async function saveNote() {
   console.log('Save Note element was clicked, woot woot!');
   const title = document.getElementById("noteTitle").value.trim();
   const content = document.getElementById("noteArea").value.trim();
